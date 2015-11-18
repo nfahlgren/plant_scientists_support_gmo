@@ -57,19 +57,41 @@ def main():
     # Open output file
     output = open(args.outfile, 'w')
 
+    # Unique PubMed ID list
+    pubmed_ids = {}
+
     # Open author list file
     authors = open(args.file, 'r')
+    # Query PubMed with each author name
     for author in authors:
         author = author.rstrip('\n')
         author = author.replace(" ", "%20")
         author_url = url_base + esearch + "?db=pubmed&term=%22" + author + "%22[author]&retmax=9999"
         author_results = requests.get(author_url)
         author_xml = ElementTree.fromstring(author_results.content)
-        pubmed_ids = author_xml[3]
-        for id in pubmed_ids:
-            paper_url = url_base + efetch + "?db=pubmed&retmode=xml&id=" + id.text
-            paper_result = requests.get(paper_url)
-            print(id.text)
+        author_pubmed_ids = author_xml[3]
+        for id in author_pubmed_ids:
+            pubmed_ids[id.text] = 1
+
+    # Fetch all papers
+    paper_url = url_base + efetch + "?db=pubmed&retmode=xml&id=" + ','.join(map(str, pubmed_ids.keys()))
+    paper_results = requests.get(paper_url)
+    paper_xml = ElementTree.fromstring(paper_results.content)
+    # Get articles from results
+    for article in paper_xml:
+        citation = article[0]
+        for item in citation:
+            if item.tag == 'Article':
+                for element in item:
+                    if element.tag == 'AuthorList':
+                        for author_name in element:
+                            lastname = author_name[0].text
+                            firstname = author_name[1].text
+                            #initials = author_name[2].text
+                            print(firstname + ' ' + lastname)
+        #article_info = citation[3]
+        #print(article_info)
+
 
 
 ###########################################
