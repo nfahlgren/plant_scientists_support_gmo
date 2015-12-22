@@ -31,7 +31,7 @@ def options():
     parser.add_argument("-d", "--dir", help='Input directory containing CSV files from author queries '
                                             'of the Scopus database.', required=True)
     parser.add_argument("-o", "--outfile", help="Output node-edge table file.", required=True)
-    parser.add_argument("-D", "--debug", help="Enable debug mode.", store=True)
+    parser.add_argument("-D", "--debug", help="Enable debug mode.", action='store_true')
     args = parser.parse_args()
 
     if not os.path.exists(args.dir):
