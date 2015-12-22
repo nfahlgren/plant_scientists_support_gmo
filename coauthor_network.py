@@ -156,7 +156,8 @@ def main():
 
                         for author in authors:
                             # author = author.lower()
-                            #print(articleID + ': ' + author)
+                            if args.debug:
+                                print(articleID + ': ' + author)
                             lastname, firstnames = author.split(', ')
                             if '-' in firstnames:
                                 firstinitial = firstnames[0:3]
