@@ -7,7 +7,9 @@ import unicodecsv as csv
 import unicodedata
 import codecs
 import chardet
-from graph_tool.all import *
+
+
+# from graph_tool.all import *
 
 
 # Parse command-line arguments
@@ -55,18 +57,21 @@ def main():
     # Get options
     args = options()
 
-    # Keep track of papers we have processed
+    # Keep track of papers and their authors
     papers = {}
 
-    # Co-author network
+    # Keep track of authors and their papers
     coauthors = {}
 
-    # Author publications
-    pubs = {}
+    # Edges: papers that are linked by shared authors
+    edges = {}
+
+    # Query authors
+    query = {}
 
     # Output files
     out = open(args.outfile, 'w')
-    out.write(u'Author1_name\tAuthor1_pubs\tAuthor2_name\tAuthor2_pubs\tCoauthorships\n')
+    out.write(u'paper1_EID\tpaper1_citations\tpaper1_group\tpaper2_EID\tpaper2_citations\tpaper2_group\n')
     log = open('logfile.txt', 'w')
 
     # Walk through the CSV directory and process coauthors from each file
@@ -87,7 +92,7 @@ def main():
 
                 query_authorID = query_author_lastname + ' ' + query_author_firstinitial
                 query_authorID = unicodedata.normalize("NFKD", unicode(query_authorID, 'utf-8'))
-                #query_authorID = unicode(query_authorID.lower(), 'utf-8')
+                # query_authorID = unicode(query_authorID.lower(), 'utf-8')
 
                 # Open the file
                 # The CSV files might be encoded as UTF-8 with BOM
@@ -103,7 +108,7 @@ def main():
                     result = chardet.detect(raw)
                     encoding = result['encoding']
 
-                #csvreader = unicode_csv_reader(codecs.open(dirpath + '/' + filename, 'r', encoding=encoding))
+                # csvreader = unicode_csv_reader(codecs.open(dirpath + '/' + filename, 'r', encoding=encoding))
                 f = open(dirpath + '/' + filename, 'rb')
                 csvreader = csv.reader(f, encoding=encoding)
 
@@ -119,16 +124,25 @@ def main():
                 for publication in csvreader:
                     # Is this a unique publication?
                     articleID = publication[colnames['EID']]
-                    #log.write(u' '.join(('Author name:', query_authorID, ', PaperID:', articleID + '\n')).encode('utf-8'))
+                    # log.write(u' '.join(('Author name:', query_authorID, ',
+                    # PaperID:', articleID + '\n')).encode('utf-8'))
 
                     if articleID in papers:
+                        # We have already processed this article before
                         continue
                     else:
-                        # Register the paper
-                        papers[articleID] = 1
-
                         # Make sure the query author was found
                         author_found = False
+
+                        query[articleID] = dirpath
+
+                        # Register paper
+                        #print('\t'.join(publication) + '\n')
+                        papers[articleID] = {}
+                        if publication[colnames['Cited by']]:
+                            papers[articleID]['citations'] = int(publication[colnames['Cited by']])
+                        else:
+                            papers[articleID]['citations'] = 0
 
                         # Get list of authors for the publication
                         auth_list = []
@@ -139,9 +153,9 @@ def main():
                         publication[colnames['Authors']] = publication[colnames['Authors']].replace('Jr.,', 'Jr,')
 
                         authors = publication[colnames['Authors']].split('., ')
-                        authors.sort()
+
                         for author in authors:
-                            #author = author.lower()
+                            # author = author.lower()
                             #print(articleID + ': ' + author)
                             lastname, firstnames = author.split(', ')
                             if '-' in firstnames:
@@ -155,61 +169,67 @@ def main():
                             # Make sure the query author was found
                             if authID == query_authorID:
                                 author_found = True
-                            else:
-                                if lastname == u'román':
-                                    print(query_authorID.encode('utf-8'))
 
                             auth_list.append(authID)
-                            if authID in pubs:
-                                pubs[authID] += 1
+
+                        # Add the paper to the index of papers for each author
+                        # And add each author to the index of authors for the paper
+                        for author in auth_list:
+                            if author in coauthors:
+                                coauthors[author][articleID] = 1
                             else:
-                                pubs[authID] = 1
+                                coauthors[author] = {}
 
-                        # Build a list of unique coauthor interactions
-                        for i, author in enumerate(auth_list):
-                            for j in range(i + 1, len(auth_list)):
-                                # Have we seen this interaction before?
-                                if auth_list[i] + ':' + auth_list[j] in coauthors:
-                                    coauthors[auth_list[i] + ':' + auth_list[j]] += 1
-                                else:
-                                    coauthors[auth_list[i] + ':' + auth_list[j]] = 1
+                            papers[articleID][author] = 1
 
-                    if author_found == False:
+                    if author_found is False:
                         print(u': '.join((u'ERROR', query_authorID, articleID)).encode('utf-8'))
 
-    for key in coauthors.keys():
-        author1, author2 = key.split(':')
-        out.write(u'\t'.join(
-            (author1, str(pubs[author1]), author2, str(pubs[author2]), str(coauthors[key]) + '\n')).encode('utf-8'))
+    # Loop through each paper
+    for paper in papers.keys():
+        # For each coauthor on the paper, loop through all their other papers
+        for author in papers[paper].keys():
+            # Ignore the citations key
+            if author != 'citations':
+                # For each paper an author has, define paper1-paper2 edge, if it is unique
+                for author_paper in coauthors[author].keys():
+                    # Define the pair of papers
+                    pair = [paper, author_paper]
+                    # Sort the paper IDs so that we only check for this pair in one order
+                    pair.sort()
+                    edge = ':'.join(pair)
+                    # Is this a new edge?
+                    if edge not in edges:
+                        edges[edge] = query[paper]
 
+    for edge in edges:
+        paper1, paper2 = edge.split(':')
+        out.write(paper1 + '\t' + str(papers[paper1]['citations']) + '\t' + query[paper1] + '\t' +
+                  paper2 + '\t' + str(papers[paper2]['citations']) + '\t' + query[paper2] + '\n')
 
-
-
-    # Output d3 graph
-    # auth_index = {}
-    # aid = 0
-    # d3 = open('coauthors.json', 'w')
+    # # Output d3 graph
+    # paper_index = {}
+    # paper_id = 0
+    # d3 = open('network.json', 'w')
     # d3.write('{\n')
     # d3.write('\t"nodes":[\n')
     #
-    # for author in pubs.keys():
-    #     auth_index[author] = aid
-    #     aid += 1
-    #     d3.write(u''.join(('\t\t{"name":"' + author + '","group":1},\n')).encode('utf-8'))
+    # for paper in papers.keys():
+    #     paper_index[paper] = paper_id
+    #     paper_id += 1
+    #     d3.write(u''.join(('\t\t{"name":"' + paper + '","group":1},\n')).encode('utf-8'))
     #
     # d3.write('\t],\n')
     # d3.write('\t"links":[\n')
     #
-    # for key in coauthors.keys():
-    #     author1, author2 = key.split(':')
-    #     d3.write(u''.join(('\t\t{"source":' + str(auth_index[author1]) +
-    #                        ',"target":' + str(auth_index[author2]) +
-    #                        ',"value":' + str(coauthors[key]) + '},\n')).encode('utf-8'))
+    # for edge in edges.keys():
+    #     paper1, paper2 = edge.split(':')
+    #     d3.write(u''.join(('\t\t{"source":' + str(paper_index[paper1]) +
+    #                        ',"target":' + str(paper_index[paper2]) +
+    #                        ',"value":1},\n')).encode('utf-8'))
     #
     # d3.write('\t]\n')
     # d3.write('}\n')
-
-
 
     # d3.write('<!DOCTYPE html>\n')
     # d3.write('<meta charset="utf-8">\n')
@@ -238,6 +258,7 @@ def main():
     # d3.write('')
     # d3.write('</script>\n\n')
 
+
 ###########################################
 
 # Unicode CSV reader
@@ -246,6 +267,8 @@ def unicode_csv_reader(utf8_data):
     csvreader = csv.reader(utf8_data)
     for row in csvreader:
         yield [unicode(cell, 'utf-8') for cell in row]
+
+
 ###########################################
 
 if __name__ == '__main__':
