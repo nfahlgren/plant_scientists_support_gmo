@@ -31,7 +31,7 @@ def options():
     parser.add_argument("-d", "--dir", help='Input directory containing CSV files from author queries '
                                             'of the Scopus database.', required=True)
     parser.add_argument("-o", "--outfile", help="Output node-edge table file.", required=True)
-    parser.add_argument("-D", "--debug", help="Enable debug mode.")
+    parser.add_argument("-D", "--debug", help="Enable debug mode.", store=True)
     args = parser.parse_args()
 
     if not os.path.exists(args.dir):
@@ -73,7 +73,7 @@ def main():
     # Output files
     out = open(args.outfile, 'w')
     out.write(u'paper1_EID\tpaper1_citations\tpaper1_group\tpaper2_EID\tpaper2_citations\tpaper2_group\n')
-    log = open('logfile.txt', 'w')
+    #log = open('logfile.txt', 'w')
 
     # Walk through the CSV directory and process coauthors from each file
     for (dirpath, dirnames, filenames) in os.walk(args.dir):
