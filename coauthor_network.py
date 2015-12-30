@@ -3,11 +3,13 @@
 from __future__ import print_function
 import argparse
 import os
+import sys
 import unicodecsv as csv
 import unicodedata
 import codecs
 import chardet
 
+csv.field_size_limit(sys.maxsize)
 
 # from graph_tool.all import *
 
