@@ -123,6 +123,7 @@ def main():
 
                 # Read through the publications
                 for publication in csvreader:
+                    #print(publication)
                     # Is this a unique publication?
                     articleID = publication[colnames['EID']]
                     # log.write(u' '.join(('Author name:', query_authorID, ',
