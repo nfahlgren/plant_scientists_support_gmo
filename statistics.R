@@ -15,8 +15,8 @@ stats$citations_per_year = stats$citations / stats$active_years
 stats.sorted = stats[order(stats$citations_per_year),]
 
 ggplot(stats,
-       aes(x = log(citations_per_year + 1), group = group, fill = group)) +
-  geom_density(alpha = 0.2)
+       aes(x = log(citations_per_year), group = group, fill = group)) +
+  geom_density(alpha = 0.2) + theme_bw()
 ################################################################################
 
 ## Title word frequencies ##
