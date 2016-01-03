@@ -4,6 +4,7 @@ library(tm.plugin.webmining)
 library(wordcloud)
 library(SnowballC)
 library(shiny)
+library(grid)
 
 ## Citation statistics ##
 stats = read.table(file='network.edges2.txt.stats.txt', sep='\t', header=TRUE)
@@ -12,11 +13,70 @@ stats$active_years = stats$last_year - stats$start_year + 1
 
 stats$citations_per_year = stats$citations / stats$active_years
 
+stats$group = as.character(stats$group)
+stats[grep('scientific_support', stats$group),]$group = 'Scientific support'
+stats[grep('no_consensus', stats$group),]$group = 'No consensus'
+stats$group = factor(stats$group)
+
 stats.sorted = stats[order(stats$citations_per_year),]
 
-ggplot(stats,
-       aes(x = log(citations_per_year), group = group, fill = group)) +
-  geom_density(alpha = 0.2) + theme_bw()
+# Total citations
+plot.citations = ggplot(stats, aes(x = citations, group = group, fill = group)) + 
+  geom_density(alpha = 0.5) + theme_bw() + scale_x_log10('log(citations, base = 10)') +
+  theme(legend.position = 'bottom')
+
+# First publication year
+plot.start = ggplot(stats, aes(x = start_year, group = group, fill = group)) +
+  geom_density(alpha = 0.5) + theme_bw() + scale_x_continuous('First publication year') +
+  theme(legend.position = 'bottom')
+
+# Active publication years
+plot.career = ggplot(stats, aes(x = active_years, group = group, fill = group)) +
+  geom_density(alpha = 0.5) + theme_bw() + scale_x_continuous('Active publication years') +
+  theme(legend.position = 'bottom')
+
+plot.cpy = ggplot(stats,
+                  aes(x = citations_per_year, group = group, fill = group)) +
+  geom_density(alpha = 0.5) + theme_bw() + 
+  scale_x_log10('log(citations / year, base = 10)') +
+  theme(legend.position = 'bottom')
+
+# Multiple plot function modified from the Cookbook for R by Winston Chang: http://www.cookbook-r.com/Graphs/Multiple_graphs_on_one_page_(ggplot2)/
+multiplot <- function(..., plotlist=NULL, cols=1, layout=NULL) {
+  # Make a list from the ... arguments and plotlist
+  plots <- c(list(...), plotlist)
+  
+  numPlots = length(plots)
+  
+  # If layout is NULL, then use 'cols' to determine layout
+  if (is.null(layout)) {
+    # Make the panel
+    # ncol: Number of columns of plots
+    # nrow: Number of rows needed, calculated from # of cols
+    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
+                     ncol = cols, nrow = ceiling(numPlots/cols),byrow=TRUE)
+  }
+  
+  if (numPlots==1) {
+    print(plots[[1]])
+    
+  } else {
+    # Set up the page
+    grid.newpage()
+    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
+    
+    # Make each plot, in the correct location
+    for (i in 1:numPlots) {
+      # Get the i,j matrix positions of the regions that contain this subplot
+      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+      
+      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
+                                      layout.pos.col = matchidx$col))
+    }
+  }
+}
+
+multiplot(plot.citations, plot.cpy, plot.start, plot.career, cols = 2)
 ################################################################################
 
 ## Title word frequencies ##
