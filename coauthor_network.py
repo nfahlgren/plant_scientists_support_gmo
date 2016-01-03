@@ -72,10 +72,16 @@ def main():
     # Query authors
     query = {}
 
+    # Author stats
+    stats = {}
+
     # Output files
     out = open(args.outfile, 'w')
     out.write(u'paper1_EID\tpaper1_citations\tpaper1_group\tpaper2_EID\tpaper2_citations\tpaper2_group\n')
     #log = open('logfile.txt', 'w')
+
+    title_txt = open(args.outfile + '.titles.txt', 'w')
+    title_txt.write(u'title\tgroup\n')
 
     # Walk through the CSV directory and process coauthors from each file
     for (dirpath, dirnames, filenames) in os.walk(args.dir):
@@ -96,6 +102,7 @@ def main():
                 query_authorID = query_author_lastname + ' ' + query_author_firstinitial
                 query_authorID = unicodedata.normalize("NFKD", unicode(query_authorID, 'utf-8'))
                 # query_authorID = unicode(query_authorID.lower(), 'utf-8')
+                stats[query_authorID] = {'citations' : 0, 'group' : dirpath}
 
                 # Open the file
                 # The CSV files might be encoded as UTF-8 with BOM
@@ -130,6 +137,25 @@ def main():
                     articleID = publication[colnames['EID']]
                     # log.write(u' '.join(('Author name:', query_authorID, ',
                     # PaperID:', articleID + '\n')).encode('utf-8'))
+
+                    # Additional stats
+                    if publication[colnames['Cited by']]:
+                        stats[query_authorID]['citations'] += int(publication[colnames['Cited by']])
+                    if publication[colnames['Year']]:
+                        pub_year = int(publication[colnames['Year']])
+                        if 'start_year' in stats[query_authorID]:
+                            if pub_year < stats[query_authorID]['start_year']:
+                                stats[query_authorID]['start_year'] = pub_year
+                        else:
+                            stats[query_authorID]['start_year'] = pub_year
+
+                        if 'last_year' in stats[query_authorID]:
+                            if pub_year > stats[query_authorID]['last_year']:
+                                stats[query_authorID]['last_year'] = pub_year
+                        else:
+                             stats[query_authorID]['last_year'] = pub_year
+
+                    title_txt.write('"' + publication[colnames['Title']].replace('\n', ' ').replace('\r', ' ').replace('"', '').encode('utf-8') + '"\t' + dirpath + '\n')
 
                     if articleID in papers:
                         # We have already processed this article before
@@ -212,6 +238,13 @@ def main():
         out.write(paper1 + '\t' + str(papers[paper1]['citations']) + '\t' + query[paper1] + '\t' +
                   paper2 + '\t' + str(papers[paper2]['citations']) + '\t' + query[paper2] + '\n')
 
+    stats_file = open(args.outfile + '.stats.txt', 'w')
+    stats_file.write(u'author\tcitations\tstart_year\tlast_year\tgroup\n')
+    for author in stats:
+        stats_file.write(author.encode('utf-8') + '\t' + str(stats[author]['citations']) + '\t' +
+                         str(stats[author]['start_year']) + '\t' + str(stats[author]['last_year']) +
+                         '\t' + stats[author]['group'] + '\n')
+
     # # Output d3 graph
     # paper_index = {}
     # paper_id = 0
@@ -272,7 +305,6 @@ def unicode_csv_reader(utf8_data):
     csvreader = csv.reader(utf8_data)
     for row in csvreader:
         yield [unicode(cell, 'utf-8') for cell in row]
-
 
 ###########################################
 
