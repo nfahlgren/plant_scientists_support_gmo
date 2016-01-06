@@ -145,6 +145,9 @@ def main():
                     # log.write(u' '.join(('Author name:', query_authorID, ',
                     # PaperID:', articleID + '\n')).encode('utf-8'))
 
+                    if publication[colnames['Document Type']] is 'Erratum':
+                        continue
+
                     # Additional stats
                     if publication[colnames['Cited by']]:
                         stats[query_authorID]['citations'] += int(publication[colnames['Cited by']])
@@ -165,9 +168,6 @@ def main():
                     title = publication[colnames['Title']].replace('\n', ' ').replace('\r', ' ').replace('"', '')
                     title = regex.sub('', title)
                     title_txt.write('"' + title.encode('utf-8') + '"\t' + dirpath + '\n')
-
-                    if retract.match(title):
-                        print(title.encode('utf-8') + '\n')
 
                     if articleID in papers:
                         # We have already processed this article before
