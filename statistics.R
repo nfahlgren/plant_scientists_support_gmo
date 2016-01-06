@@ -112,8 +112,8 @@ title_tm = function(docs, cpu = 1, minWordLen = 4) {
   return(docs.tm)
 }
 
-tm.nc = title_tm(no.consensus)
-tm.ss = title_tm(sci.support)
+tm.nc = title_tm(no.consensus, cpu = 1)
+tm.ss = title_tm(sci.support, cpu = 1)
 
 tm2dm = function(tmdocs, minWordLen=4) {
   tmdocs = Corpus(VectorSource(tmdocs))
