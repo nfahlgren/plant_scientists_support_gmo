@@ -5,6 +5,7 @@ library(wordcloud)
 library(SnowballC)
 library(shiny)
 library(grid)
+library(parallel)
 
 ## Citation statistics ##
 stats = read.table(file='network.edges2.txt.stats.txt', sep='\t', header=TRUE)
@@ -87,38 +88,50 @@ titles = read.table(file='network.edges2.txt.titles.txt', sep='\t',
 no.consensus = titles[titles$group == './data/no_consensus',]$title
 sci.support = titles[titles$group == './data/scientific_support',]$title
 
-tm.nc = Corpus(VectorSource(no.consensus))
-tm.ss = Corpus(VectorSource(sci.support))
+title_tm = function(docs, cpu = 1, minWordLen = 4) {
+  docs.tm = Corpus(VectorSource(docs))
+  docs.tm = tm_map(docs.tm, content_transformer(tolower))
+  docs.tm = tm_map(docs.tm, removeNumbers)
+  docs.tm = tm_map(docs.tm, removeWords, stopwords("english"))
+  docs.tm = tm_map(docs.tm, removePunctuation)
+  docs.tm = tm_map(docs.tm, stripWhitespace)
+  docs.tm = tm_map(docs.tm, PlainTextDocument)
+  
+  ref.docs = docs.tm
+  
+  docs.tm = tm_map(docs.tm, stemDocument)
+  
+  stemCompletion_mod <- function(x,dict) {
+    PlainTextDocument(stripWhitespace(paste(stemCompletion(unlist(strsplit(as.character(x)," ")),dictionary=dict, type="shortest"),sep="", collapse=" ")))
+  }
+  
+  c1 = makeForkCluster(cpu)
+  docs.tm = parSapply(c1, docs.tm, stemCompletion_mod, dict=ref.docs)
+  stopCluster(c1)
+  
+  return(docs.tm)
+}
 
-tm.nc = tm_map(tm.nc, content_transformer(tolower))
-tm.ss = tm_map(tm.ss, content_transformer(tolower))
+tm.nc = title_tm(no.consensus)
+tm.ss = title_tm(sci.support)
 
-tm.nc = tm_map(tm.nc, removeNumbers)
-tm.ss = tm_map(tm.ss, removeNumbers)
+tm2dm = function(tmdocs, minWordLen=4) {
+  tmdocs = Corpus(VectorSource(tmdocs))
+  tdm = TermDocumentMatrix(tmdocs, control = list(wordLengths=c(minWordLen, Inf)))
+  tdm.mat = as.matrix(tdm)
+  wfq = sort(rowSums(tdm.mat), decreasing = TRUE)
+  dm = data.frame(word=names(wfq), freq=wfq, stringsAsFactors=FALSE)
+  
+  # For some reason the first 9 rows are junk that gets added during the text-mining process, so remove them
+  dm = dm[10:nrow(dm),]
+  
+  return(dm)
+}
 
-tm.nc = tm_map(tm.nc, removePunctuation)
-tm.ss = tm_map(tm.ss, removePunctuation)
+dm.nc = tm2dm(tm.nc)
+dm.ss = tm2dm(tm.ss)
 
-tm.nc = tm_map(tm.nc, removeWords, stopwords("english"))
-tm.ss = tm_map(tm.ss, removeWords, stopwords("english"))
 
-tm.nc = tm_map(tm.nc, stripWhitespace)
-tm.ss = tm_map(tm.ss, stripWhitespace)
-
-tm.nc = tm_map(tm.nc, stemDocument)
-tm.ss = tm_map(tm.ss, stemDocument)
-
-tdm.nc = TermDocumentMatrix(tm.nc, control = list(wordLengths=c(5, Inf)))
-tdm.ss = TermDocumentMatrix(tm.ss, control = list(wordLengths=c(5, Inf)))
-
-mat.nc = as.matrix(tdm.nc)
-mat.ss = as.matrix(tdm.ss)
-
-wfq.nc = sort(rowSums(mat.nc), decreasing = TRUE)
-wfq.ss = sort(rowSums(mat.ss), decreasing = TRUE)
-
-dm.nc = data.frame(word=names(wfq.nc), freq=wfq.nc, stringsAsFactors=FALSE)
-dm.ss = data.frame(word=names(wfq.ss), freq=wfq.ss, stringsAsFactors=FALSE)
 
 c.scale = c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
@@ -129,12 +142,12 @@ c.scale = c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#
 #   geom_point()
 
 png(filename = 'no.consensus.wordcloud.png', width = 2500, height = 2500)
-wordcloud(no.consensus.dm$word, no.consensus.dm$freq, random.order=FALSE, 
+wordcloud(dm.nc$word, dm.nc$freq, random.order=FALSE, 
           colors=c.scale, scale = c(20,1))
 dev.off()
 
 png(filename = 'sci.support.wordcloud.png', width = 2500, height = 2500)
-wordcloud(sci.support.dm$word, sci.support.dm$freq, random.order=FALSE, 
+wordcloud(dm.ss$word, dm.ss$freq, random.order=FALSE, 
           colors=c.scale, scale = c(20,1))
 dev.off()
 

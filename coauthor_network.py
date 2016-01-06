@@ -8,6 +8,7 @@ import unicodecsv as csv
 import unicodedata
 import codecs
 import chardet
+import re
 
 csv.field_size_limit(sys.maxsize)
 
@@ -74,6 +75,12 @@ def main():
 
     # Author stats
     stats = {}
+
+    # Other language regex
+    regex = re.compile("\[.+\]", re.IGNORECASE)
+
+    # Retraction regex
+    retract = re.compile("^Retraction", re.IGNORECASE)
 
     # Output files
     out = open(args.outfile, 'w')
@@ -155,7 +162,12 @@ def main():
                         else:
                              stats[query_authorID]['last_year'] = pub_year
 
-                    title_txt.write('"' + publication[colnames['Title']].replace('\n', ' ').replace('\r', ' ').replace('"', '').encode('utf-8') + '"\t' + dirpath + '\n')
+                    title = publication[colnames['Title']].replace('\n', ' ').replace('\r', ' ').replace('"', '')
+                    title = regex.sub('', title)
+                    title_txt.write('"' + title.encode('utf-8') + '"\t' + dirpath + '\n')
+
+                    if retract.match(title):
+                        print(title.encode('utf-8') + '\n')
 
                     if articleID in papers:
                         # We have already processed this article before
