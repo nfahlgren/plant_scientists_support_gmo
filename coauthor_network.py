@@ -84,7 +84,8 @@ def main():
 
     # Output files
     out = open(args.outfile, 'w')
-    out.write(u'paper1_EID\tpaper1_citations\tpaper1_group\tpaper2_EID\tpaper2_citations\tpaper2_group\n')
+    out.write(u'paper1_EID\tpaper1_citations\tpaper1_group\tpaper1_authors\tpaper2_EID\tpaper2_citations\tpaper2_group\tpaper2_authors\n')
+    #print(u'paper1_EID\tpaper1_citations\tpaper1_group\tpaper1_authors\tpaper2_EID\tpaper2_citations\tpaper2_group\tpaper2_authors\n')
     #log = open('logfile.txt', 'w')
 
     title_txt = open(args.outfile + '.titles.txt', 'w')
@@ -145,7 +146,7 @@ def main():
                     # log.write(u' '.join(('Author name:', query_authorID, ',
                     # PaperID:', articleID + '\n')).encode('utf-8'))
 
-                    if publication[colnames['Document Type']] is 'Erratum':
+                    if publication[colnames['Document Type']] == 'Erratum':
                         continue
 
                     # Additional stats
@@ -247,8 +248,19 @@ def main():
 
     for edge in edges:
         paper1, paper2 = edge.split(':')
-        out.write(paper1 + '\t' + str(papers[paper1]['citations']) + '\t' + query[paper1] + '\t' +
-                  paper2 + '\t' + str(papers[paper2]['citations']) + '\t' + query[paper2] + '\n')
+        paper1_authors = papers[paper1].keys()
+        paper2_authors = papers[paper2].keys()
+
+        # out.write(paper1 + '\t' + str(papers[paper1]['citations']) + '\t' + query[paper1] + '\t' +
+        #       ';'.join(paper1_authors).encode('utf-8') + '\t' +
+        #       paper2 + '\t' + str(papers[paper2]['citations']) + '\t' + query[paper2] + '\t' +
+        #       ';'.join(paper2_authors).encode('utf-8') + '\n')
+        out.write(paper1.encode('utf-8') + '\t' + str(papers[paper1]['citations']).encode('utf-8') + '\t' +
+                  query[paper1].encode('utf-8') + '\t' +
+                  ';'.join(paper1_authors).encode('utf-8') + '\t' +
+                  paper2.encode('utf-8') + '\t' + str(papers[paper2]['citations']).encode('utf-8') + '\t' +
+                  query[paper2].encode('utf-8') + '\t' +
+                  ';'.join(paper2_authors).encode('utf-8') + '\n')
 
     stats_file = open(args.outfile + '.stats.txt', 'w')
     stats_file.write(u'author\tcitations\tstart_year\tlast_year\tgroup\n')
