@@ -7,21 +7,17 @@ library(grid)
 library(parallel)
 
 ## Title word frequencies ##
-titles = read.table(file='network.scisupport.txt.titles.txt', sep='\t',
+titles = read.table(file='petitioner_publication_analysis_results.txt.titles.txt', sep='\t',
                     header=TRUE, encoding='UTF-8', stringsAsFactors = FALSE,
                     quote = "\"")
 
+# Run a series of text-mining steps on the input titles
+# The stem completion step can be run in parallel
 title_tm = function(docs, cpu = 1, minWordLen = 4) {
   docs.tm = Corpus(VectorSource(docs))
   docs.tm = tm_map(docs.tm, content_transformer(tolower))
   docs.tm = tm_map(docs.tm, removeNumbers)
   docs.tm = tm_map(docs.tm, removeWords, stopwords("english"))
-#   docs.tm = tm_map(docs.tm, removeWords, c('arabidopsis', 'thaliana', 'maize', 'tomato',
-#                                            'populus', 'poplar', 'chlamydomonas', 'rice',
-#                                            'setaria', 'sorghum', 'sugarcane', 'brassica',
-#                                            'wheat', 'barley', 'brachypodium', 'distachyon',
-#                                            'cassava', 'phytophthora', 'pseudomonas',
-#                                            'xanthomonas'))
   docs.tm = tm_map(docs.tm, removePunctuation)
   docs.tm = tm_map(docs.tm, stripWhitespace)
   docs.tm = tm_map(docs.tm, PlainTextDocument)
@@ -41,8 +37,7 @@ title_tm = function(docs, cpu = 1, minWordLen = 4) {
   return(docs.tm)
 }
 
-tm.ss = title_tm(titles, cpu = 4)
-
+# Convert a corpus to a data frame of words and word frequencies
 tm2dm = function(tmdocs, minWordLen=4) {
   tmdocs = Corpus(VectorSource(tmdocs))
   tdm = TermDocumentMatrix(tmdocs, control = list(wordLengths=c(minWordLen, Inf)))
@@ -56,152 +51,32 @@ tm2dm = function(tmdocs, minWordLen=4) {
   return(dm)
 }
 
+tm.ss = title_tm(titles, cpu = 4)
 dm.ss = tm2dm(tm.ss)
 
-c.scale = c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
-
-png(filename = 'sci.support.wordcloud.png', width = 2500, height = 2500)
-wordcloud(dm.ss$word, dm.ss$freq, random.order=FALSE, 
-          colors=c.scale, scale = c(20,1))
-dev.off()
-
-
-
 removed = c(
-  'scientificsupport',
-  'arabidopsis',
-  'maize',
-  'thaliana',
-  'tomato',
-  'rice',
-  'wheat',
-  'tobacco',
-  'populus',
-  'chlamydomonas',
-  'phytophthora',
-  'barley',
-  'potato',
-  'pseudomonas',
-  'salina',
-  'soybean',
-  'human',
-  'yeast',
-  'agrobacterium',
-  'cucumber',
-  'reinhardtii',
-  'drosophila',
-  'brassica',
-  'nicotiana',
-  'sativa',
-  'oryza',
-  'coli',
-  'infestans',
-  'elongata',
-  'polymorpha',
-  'escherichia',
-  'solanum',
-  'tumefaciens',
-  'rhizobium',
-  'indica',
-  'poplar',
-  'turnip',
-  'cauliflower',
-  'sativum',
-  'xanthomonas',
-  'pisum',
-  'domestica',
-  'physcomitrella',
-  'corn',
-  'brachypodium',
-  'lepidoptera',
-  'mouse',
-  'potyvirus',
-  'patens',
-  'candida',
-  'bacillus',
-  'cotton',
-  'mice',
-  'saccharomyces',
-  'sorghum',
-  'sugarcane',
-  'thlaspi',
-  'cyanobacteria',
-  'poaceae',
-  'radiata',
-  'carrot',
-  'distachyon',
-  'hedgehog',
-  'sinorhizobium',
-  'fusarium',
-  'neurospora',
-  'grape',
-  'sojae',
-  'strawberries',
-  'thuringiensis',
-  'vitis',
-  'petunia',
-  'caerulescens',
-  'cerevisiae',
-  'onion',
-  'haberlea',
-  'sunflower',
-  'cabbage',
-  'napus',
-  'vicia',
-  'crassa',
-  'cucumis',
-  'reinhardi',
-  'rhodopensis',
-  'alfalfa',
-  'aspen',
-  'cladosporium',
-  'medicago',
-  'panicum',
-  'vaccinia',
-  'chenopodiaceae',
-  'cassava',
-  'fulvum',
-  'spinach',
-  'triticum',
-  'benthamiana',
-  'plutellidae',
-  'banana',
-  'copi',
-  'switchgrass',
-  'elegans',
-  'setaria'
+  'scientificsupport', 'arabidopsis', 'maize', 'thaliana', 'tomato', 'rice', 'wheat', 'tobacco', 'populus', 'chlamydomonas',
+  'phytophthora', 'barley', 'potato', 'pseudomonas', 'salina', 'soybean', 'human', 'yeast', 'agrobacterium', 'cucumber',
+  'reinhardtii', 'drosophila', 'brassica', 'nicotiana', 'sativa', 'oryza', 'coli', 'infestans', 'elongata', 'polymorpha',
+  'escherichia', 'solanum', 'tumefaciens', 'rhizobium', 'indica', 'poplar', 'turnip', 'cauliflower', 'sativum', 'xanthomonas',
+  'pisum', 'domestica', 'physcomitrella', 'corn', 'brachypodium', 'lepidoptera', 'mouse', 'potyvirus', 'patens', 'candida',
+  'bacillus', 'cotton', 'mice', 'saccharomyces', 'sorghum', 'sugarcane', 'thlaspi', 'cyanobacteria', 'poaceae', 'radiata',
+  'carrot', 'distachyon', 'hedgehog', 'sinorhizobium', 'fusarium', 'neurospora', 'grape', 'sojae', 'strawberries', 'thuringiensis',
+  'vitis', 'petunia', 'caerulescens', 'cerevisiae', 'onion', 'haberlea', 'sunflower', 'cabbage', 'napus', 'vicia', 'crassa',
+  'cucumis', 'reinhardi', 'rhodopensis', 'alfalfa', 'aspen', 'cladosporium', 'medicago', 'panicum', 'vaccinia', 'chenopodiaceae',
+  'cassava', 'fulvum', 'spinach', 'triticum', 'benthamiana', 'plutellidae', 'banana', 'copi', 'switchgrass', 'elegans', 'setaria'
 )
 
 dm.filtered = dm.ss[!dm.ss$word %in% removed,]
 
+# Manually fix a few incorrectly stem-completed words
+dm.filtered[dm.filtered$word == 'respons',]$word = 'response'
 dm.filtered[dm.filtered$word == 'regulon',]$word = 'regulate'
+
+c.scale = c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
 png(filename = 'sci.support.wordcloud.png', width = 2500, height = 2500)
 wordcloud(dm.filtered$word, dm.filtered$freq, random.order=FALSE, 
-          colors=c.scale, scale = c(20,1))
-dev.off()
-
-dm1000 = dm.filtered
-dm1000[dm1000$freq > 1000,]$freq = 1000
-png(filename = 'sci.support.wordcloud1000.png', width = 2500, height = 2500)
-wordcloud(dm1000$word, dm1000$freq, random.order=FALSE, 
-          colors=c.scale, scale = c(20,1))
-dev.off()
-
-dm500 = dm.filtered
-dm500[dm500$freq > 500,]$freq = 500
-
-c.scale = brewer.pal(9, 'Blues')
-c.scale = c.scale[3:9]
-png(filename = 'sci.support.wordcloud1000_blue.png', width = 2500, height = 2500)
-wordcloud(dm1000$word, dm1000$freq, random.order=FALSE, 
-          colors=c.scale, scale = c(20,1))
-dev.off()
-
-c.scale = brewer.pal(9, 'Greens')
-c.scale = c.scale[3:9]
-png(filename = 'sci.support.wordcloud1000_greens.png', width = 2500, height = 2500)
-wordcloud(dm1000$word, dm1000$freq, random.order=FALSE, 
           colors=c.scale, scale = c(20,1))
 dev.off()
 
