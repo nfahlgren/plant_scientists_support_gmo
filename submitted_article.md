@@ -1,7 +1,6 @@
-##Plant scientists support the safety of genetic modification
-technology
+##Plant scientists support the safety of genetic modification technology  
 
-####Claims that scientific doubt remains about the food safety of Genetically Modified Organism (GMO) technologies are misleading and hinder the next Green Revolution.
+####Claims that scientific doubt remains about the food safety of Genetically Modified Organism (GMO) technologies are misleading and hinder the next Green Revolution  
 
 **Noah Fahlgren<sup>1</sup>, Rebecca Bart<sup>1</sup>, Luis Herrera-Estrella<sup>2</sup>, Rubén
 Rellán-Álvarez<sup>2</sup>, Daniel H. Chitwood<sup>1,\*</sup>, José R. Dinneny<sup>1,\*</sup>**
@@ -169,7 +168,7 @@ REFERENCES AND NOTES
     [*http://www.nytimes.com/2016/01/04/opinion/we-need-a-new-green-revolution.html*](http://www.nytimes.com/2016/01/04/opinion/we-need-a-new-green-revolution.html)
 
 
-![Figure 1](https://github.com/rr-lab/scopus_publications_analysis/blob/master/figures/Policy_figure.tif)**Plant scientists around the world support the safety of genetic
+![Figure 1](https://github.com/rr-lab/scopus_publications_analysis/blob/master/figures/Policy_figure.jpg)**Plant scientists around the world support the safety of genetic
 modification technology.** (**A**) Map showing nationalities of
 around 1,400 individuals, from around the world, signing a petition in
 support of the safety of GMOs (*1*). (**B**) Word cloud representing the
