@@ -5,14 +5,14 @@ technology**
 Genetically Modified Organism (GMO) technologies are misleading and
 hinder the next Green Revolution*
 
-Noah Fahlgren^1^, Rebecca Bart^1^, Luis Herrera-Estrella^2^, Rubén
-Rellán-Álvarez^2^, Daniel H. Chitwood^1,\*^, José R. Dinneny^3,\*^
+Noah Fahlgren<sup>1</sup>, Rebecca Bart<sup>1</sup>, Luis Herrera-Estrella<sup>2</sup>, Rubén
+Rellán-Álvarez<sup>2</sup>, Daniel H. Chitwood<sup>1,\*</sup>, José R. Dinneny<sup>1,\*</sup>
 
-*^1^Donald Danforth Plant Science Center, St. Louis, MO, USA.
-^2^National Laboratory of Genomics for Biodiversity, Irapuato, Mexico.
-^3^Carnegie Institution for Science, Stanford, CA, USA.
-^\*^Corresponding authors. Email:*
-[**jdinneny@carnegiescience.edu**](mailto:jdinneny@carnegiescience.edu)*,*
+<sup>1</sup>Donald Danforth Plant Science Center, St. Louis, MO, USA.
+<sup>2</sup>National Laboratory of Genomics for Biodiversity, Irapuato, Mexico.
+<sup>3</sup>Carnegie Institution for Science, Stanford, CA, USA.
+<sup>\*</sup>Corresponding authors. Email:
+[**jdinneny@carnegiescience.edu**](mailto:jdinneny@carnegiescience.edu),
 [**dchitwood@danforthcenter.org**](mailto:dchitwood@danforthcenter.org)
 
 On November 9, 2015, we initiated a petition to gauge the support of the
@@ -171,7 +171,7 @@ REFERENCES AND NOTES
     [*http://www.nytimes.com/2016/01/04/opinion/we-need-a-new-green-revolution.html*](http://www.nytimes.com/2016/01/04/opinion/we-need-a-new-green-revolution.html)
 
 
-![Figure 1](figures/Policy_figure.tif)**Plant scientists around the world support the safety of genetic
+![Figure 1](https://github.com/rr-lab/scopus_publications_analysis/blob/master/figures/Policy_figure.tif)**Plant scientists around the world support the safety of genetic
 modification technology.** (**A**) Map showing nationalities of
 around 1,400 individuals, from around the world, signing a petition in
 support of the safety of GMOs (*1*). (**B**) Word cloud representing the
