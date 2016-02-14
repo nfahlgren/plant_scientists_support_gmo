@@ -1,12 +1,10 @@
-**Plant scientists support the safety of genetic modification
-technology**
+##Plant scientists support the safety of genetic modification
+technology
 
-*Claims that scientific doubt remains about the food safety of
-Genetically Modified Organism (GMO) technologies are misleading and
-hinder the next Green Revolution*
+####Claims that scientific doubt remains about the food safety of Genetically Modified Organism (GMO) technologies are misleading and hinder the next Green Revolution.
 
-Noah Fahlgren<sup>1</sup>, Rebecca Bart<sup>1</sup>, Luis Herrera-Estrella<sup>2</sup>, Rubén
-Rellán-Álvarez<sup>2</sup>, Daniel H. Chitwood<sup>1,\*</sup>, José R. Dinneny<sup>1,\*</sup>
+**Noah Fahlgren<sup>1</sup>, Rebecca Bart<sup>1</sup>, Luis Herrera-Estrella<sup>2</sup>, Rubén
+Rellán-Álvarez<sup>2</sup>, Daniel H. Chitwood<sup>1,\*</sup>, José R. Dinneny<sup>1,\*</sup>**
 
 <sup>1</sup>Donald Danforth Plant Science Center, St. Louis, MO, USA.
 <sup>2</sup>National Laboratory of Genomics for Biodiversity, Irapuato, Mexico.
