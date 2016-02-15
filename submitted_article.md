@@ -168,7 +168,7 @@ research and GMO policy.
     [*http://www.nytimes.com/2016/01/04/opinion/we-need-a-new-green-revolution.html*](http://www.nytimes.com/2016/01/04/opinion/we-need-a-new-green-revolution.html)
 
 
-![Figure 1](https://github.com/rr-lab/scopus_publications_analysis/blob/master/figures/Policy_figure.jpg = 350x)**Plant scientists around the world support the safety of genetic
+![Figure 1](https://github.com/rr-lab/scopus_publications_analysis/blob/master/figures/Policy_figure.jpg)**Plant scientists around the world support the safety of genetic
 modification technology.** (**A**) Map showing nationalities of
 around 1,400 individuals, from around the world, signing a petition in
 support of the safety of GMOs (*1*). (**B**) Word cloud representing the
